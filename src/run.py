@@ -85,8 +85,7 @@ class RedSocial:
 
     def generar_todas_las_estrategias(self):
         """
-        Genera manualmente todas las combinaciones posibles de estrategias,
-        sin usar itertools.
+        Genera manualmente todas las combinaciones posibles de estrategias.
         Para cada grupo, se consideran los valores de 0 hasta n (inclusive).
         """
         estrategias = [[]]
