@@ -131,6 +131,7 @@ class RedSocial:
 
 # Ejemplo de uso
 if __name__ == "__main__":
+    # Ejemplo 1:
     grupos_RS1 = [
         GrupoAgentes(3, -100, 50, 0.5),
         GrupoAgentes(1, 100, 80, 0.1),
