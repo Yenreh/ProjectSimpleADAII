@@ -1,18 +1,30 @@
-# Ask for python version
-echo "Enter python version (e.g. 3.12):"
-read python_version
+@echo off
+setlocal
 
-# Create virtual environment with the specified python version
-python$python_version -m venv venv
+REM Ask for Python version (e.g. 3.12)
+set /p python_version=Enter python version (e.g. 3.12): 
 
-# Activate virtual environment
-source venv/bin/activate
+REM Create virtual environment with the specified Python version
+python%python_version% -m venv venv
+if errorlevel 1 (
+    echo Failed to create virtual environment.
+    exit /b 1
+)
 
-# Install requirements
-pip$python_version install -r requirements.txt
+REM Activate the virtual environment
+call venv\Scripts\activate
 
-# Run the project
-python$python_version run.py
+REM Install requirements
+pip%python_version% install -r requirements.txt
+if errorlevel 1 (
+    echo Failed to install requirements.
+    exit /b 1
+)
 
-# Deactivate virtual environment
+REM Run the project
+python%python_version% run.py
+
+REM Deactivate the virtual environment
 deactivate
+
+endlocal
