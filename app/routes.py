@@ -1,11 +1,9 @@
 import os
 import time
 import threading
-import itertools
 from flask import render_template, request, redirect, flash, jsonify
 from app import app
 from app.logic.utils import parsear_entrada, formatear_salida
-from app.logic.models import RedSocial
 
 # Variable global para almacenar resultados parciales de cada algoritmo.
 processing_results = {}
