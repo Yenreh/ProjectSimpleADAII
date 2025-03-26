@@ -1,4 +1,5 @@
 import os
+import time
 from flask import render_template, request, redirect, flash
 from app import app
 from app.logic.utils import parsear_entrada, formatear_salida
@@ -31,7 +32,7 @@ def index():
                 "DP": ("Programación Dinámica", "modciDP")
             }
 
-            resultados = {}  # key: "FB", "V", "DP"; value: (estrategia, esfuerzo, conflicto, archivo_salida)
+            resultados = {}  # key: "FB", "V", "DP"; value: (estrategia, esfuerzo, conflicto, archivo_salida, tiempo_ejecucion)
 
             # Crear carpeta outputs si no existe
             outputs_dir = os.path.join(os.getcwd(), "outputs")
@@ -43,20 +44,23 @@ def index():
             # Procesar cada algoritmo seleccionado y generar su archivo de salida
             for key in seleccionados:
                 nombre_alg, funcion = mapping_algoritmos[key]
+                start_time = time.time()
                 if funcion == "modciFB":
                     estrategia, esfuerzo, conflicto = red_social.modciFB()
-                    print("Procesando Fuerza Bruta")
-                    print(estrategia, esfuerzo, conflicto)
+                    # print("Procesando Fuerza Bruta")
+                    # print(estrategia, esfuerzo, conflicto)
                 elif funcion == "modciV":
                     estrategia, esfuerzo, conflicto = red_social.modciV()
-                    print("Procesando Voraz")
-                    print(estrategia, esfuerzo, conflicto)
+                    # print("Procesando Voraz")
+                    # print(estrategia, esfuerzo, conflicto)
                 elif funcion == "modciDP":
                     estrategia, esfuerzo, conflicto = red_social.modciDP()
-                    print("Procesando DP")
-                    print(estrategia, esfuerzo, conflicto)
+                    # print("Procesando DP")
+                    # print(estrategia, esfuerzo, conflicto)
                 else:
                     continue
+                end_time = time.time()
+                tiempo_ejecucion = end_time - start_time
 
                 # Formateamos la salida (sin encabezados con el nombre del algoritmo)
                 salida_texto = formatear_salida(red_social, estrategia, esfuerzo, conflicto)
@@ -65,8 +69,8 @@ def index():
                 ruta_salida = os.path.join(outputs_dir, nombre_archivo_salida)
                 with open(ruta_salida, "w", encoding="utf-8") as f:
                     f.write(salida_texto)
-                # Almacenar resultado junto con el nombre del archivo generado
-                resultados[key] = (estrategia, esfuerzo, conflicto, nombre_archivo_salida)
+                # Almacenar resultado junto con el nombre del archivo generado y el tiempo de ejecución
+                resultados[key] = (estrategia, esfuerzo, conflicto, nombre_archivo_salida, tiempo_ejecucion)
 
             # Para mostrar en la plantilla se mapea el código al nombre a mostrar
             resultados_mostrar = {}
