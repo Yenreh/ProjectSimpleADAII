@@ -6,50 +6,59 @@
     <title>Resultados de Moderación - Procesando</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script>
+        let pollInterval;
         function pollStatus() {
             fetch('/status')
                 .then(response => response.json())
                 .then(data => {
                     let resultsDiv = document.getElementById('results');
-                    resultsDiv.innerHTML = "";  // Limpiar resultados previos
+                    resultsDiv.innerHTML = "";  // Clear previous results
 
-                    // Mostrar la sección de datos de entrada
+                    // Show the input data section
                     let inputDiv = document.getElementById('inputData');
                     if (inputDiv) {
                         inputDiv.innerText = document.getElementById('entradaData').value;
                     }
 
-                    // mapping_algoritmos se pasa desde render_template
+                    // mapping_algoritmos is passed from render_template
                     let mapping = {{ mapping_algoritmos|tojson }};
+                    let allCompleted = true;
 
-                    // Para cada algoritmo en el mapping, crear una sección
+                    // For each algorithm in the mapping, create a section
                     for (let key in mapping) {
                         let section = document.createElement('div');
                         section.className = 'resultado';
-                        let nombreAlg = mapping[key][0];  // Nombre a mostrar
-                        let funcName = mapping[key][1];     // Nombre de la función
+                        let nombreAlg = mapping[key][0];  // Display name
+                        let funcName = mapping[key][1];   // Function name
 
                         let html = `<h3>${nombreAlg}</h3>`;
-                        // Si el algoritmo ya terminó
+                        // If the algorithm has completed
                         if (data[key] && data[key].status === "completed") {
                             let result = data[key].result;
-                            html += `<p><strong>Tiempo de Ejecución:</strong> ${data[key].time}</p>`;
-                            html += `<p><strong>Conflicto Interno:</strong> ${result[2]}</p>`;
-                            html += `<p><strong>Esfuerzo Total:</strong> ${result[1]}</p>`;
-                            html += `<p><strong>Estrategia:</strong> <div class="strategy-container"> ${JSON.stringify(result[0])}</div></p>`;
+                            html += `<p><strong>Execution Time:</strong> ${data[key].time}</p>`;
+                            html += `<p><strong>Internal Conflict:</strong> ${result[2]}</p>`;
+                            html += `<p><strong>Total Effort:</strong> ${result[1]}</p>`;
+                            html += `<p><strong>Strategy:</strong> <div class="strategy-container"> ${JSON.stringify(result[0])}</div></p>`;
                             let nombre_base = data["nombre_base"] ? data["nombre_base"] : "archivo";
-                            html += `<p><strong>Archivo de Salida:</strong> output_${nombre_base}_${funcName}.txt</p>`;
+                            html += `<p><strong>Output File:</strong> output_${nombre_base}_${funcName}.txt</p>`;
                         } else {
-                            html += `<p><span class="spinner"></span> Procesando...</p>`;
+                            html += `<p><span class="spinner"></span> Processing...</p>`;
+                            allCompleted = false;
                         }
                         section.innerHTML = html;
                         resultsDiv.appendChild(section);
                     }
+
+                    // Stop polling if all algorithms are completed
+                    if (allCompleted) {
+                        clearInterval(pollInterval);
+                    }
                 })
                 .catch(error => console.error('Error:', error));
         }
-        // Ejecutar polling cada 2 segundos
-        setInterval(pollStatus, 2000);
+
+        // Execute polling every 2 seconds
+        pollInterval = setInterval(pollStatus, 2000);
     </script>
 </head>
 <body>
