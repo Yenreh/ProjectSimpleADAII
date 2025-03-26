@@ -31,13 +31,11 @@ class GrupoAgentes:
     def clonar_con_moderacion(self, e):
         """
         Crea una copia del grupo luego de aplicar la moderación de 'e' agentes.
-        Si e > 0, se asume que esos agentes son removidos (por haber moderado sus opiniones).
+        Si e > 0, se asume que esos agentes son removidos.
         """
         if e > self.n:
             raise ValueError("No se pueden moderar más agentes de los que hay en el grupo.")
-        # Si se moderan agentes, se reduce el número de agentes.
-        nuevo_n = self.n - e if e > 0 else self.n
-        return GrupoAgentes(nuevo_n, self.op1, self.op2, self.rig)
+        return GrupoAgentes(self.n - e, self.op1, self.op2, self.rig)
 
 class RedSocial:
     def __init__(self, grupos, R_max):
@@ -54,18 +52,14 @@ class RedSocial:
         Calcula el conflicto interno de la red social usando la fórmula:
         CI = (∑ [n_i * (op1_i - op2_i)^2]) / (∑ [n_i])
         """
-        suma_conflicto = 0
-        suma_agentes = 0
-        for grupo in self.grupos:
-            suma_conflicto += grupo.conflicto_contribucion()
-            suma_agentes += grupo.n
+        suma_conflicto = sum(grupo.conflicto_contribucion() for grupo in self.grupos)
+        suma_agentes = sum(grupo.n for grupo in self.grupos)
         return suma_conflicto / suma_agentes if suma_agentes != 0 else 0
 
     def aplicar_estrategia(self, estrategia):
         """
         Aplica la estrategia de moderación a la red.
-        estrategia: lista de enteros [e0, e1, ..., en-1] donde cada e indica
-                    el número de agentes a moderar en el grupo correspondiente.
+        estrategia: lista de enteros [e0, e1, ..., en-1].
         Devuelve una nueva instancia de RedSocial con los grupos actualizados.
         """
         nuevos_grupos = []
@@ -76,7 +70,6 @@ class RedSocial:
     def calcular_esfuerzo_total(self, estrategia):
         """
         Calcula el esfuerzo total de una estrategia.
-        Suma el esfuerzo de cada grupo usando su método calcular_esfuerzo.
         """
         esfuerzo_total = 0
         for i in range(len(self.grupos)):
@@ -85,13 +78,12 @@ class RedSocial:
 
     def generar_todas_las_estrategias(self):
         """
-        Genera manualmente todas las combinaciones posibles de estrategias.
-        Para cada grupo, se consideran los valores de 0 hasta n (inclusive).
+        Genera todas las combinaciones posibles de estrategias,
+        sin usar itertools.
         """
         estrategias = [[]]
         for grupo in self.grupos:
             nuevas_estrategias = []
-            # Para cada estrategia parcial ya generada, se agregan todas las posibles opciones para el grupo actual.
             for estrategia in estrategias:
                 for e in range(grupo.n + 1):
                     nuevas_estrategias.append(estrategia + [e])
@@ -100,64 +92,31 @@ class RedSocial:
 
     def modciFB(self):
         """
-        Resuelve el problema usando fuerza bruta:
-        - Genera todas las estrategias posibles.
-        - Filtra las que son aplicables (esfuerzo_total <= R_max).
-        - Calcula el conflicto interno resultante para cada estrategia.
-        - Retorna la estrategia que minimiza el conflicto interno,
-          junto con su esfuerzo total y el conflicto resultante.
+        Fuerza Bruta:
+        Genera todas las estrategias, filtra las aplicables y retorna la que minimiza el conflicto.
         """
         estrategias_posibles = self.generar_todas_las_estrategias()
-        
-        mejor_conflicto = float('inf')
-        mejor_estrategia = None
-        mejor_esfuerzo = None
-
-        # Recorremos cada estrategia posible
+        mejor_conflicto, mejor_estrategia, mejor_esfuerzo = float('inf'), None, None
         for estrategia in estrategias_posibles:
             esfuerzo_total = self.calcular_esfuerzo_total(estrategia)
-            # Se descarta la estrategia si el esfuerzo supera R_max
             if esfuerzo_total > self.R_max:
-                continue  
+                continue
             red_mod = self.aplicar_estrategia(estrategia)
             conflicto_actual = red_mod.calcular_conflicto_interno()
-            # Se actualiza la mejor solución si el conflicto es menor
             if conflicto_actual < mejor_conflicto:
-                mejor_conflicto = conflicto_actual
-                mejor_estrategia = estrategia
-                mejor_esfuerzo = esfuerzo_total
-
+                mejor_conflicto, mejor_estrategia, mejor_esfuerzo = conflicto_actual, estrategia, esfuerzo_total
         return mejor_estrategia, mejor_esfuerzo, mejor_conflicto
 
-# Ejemplo de uso
-if __name__ == "__main__":
-    # Ejemplo 1:
-    grupos_RS1 = [
-        GrupoAgentes(3, -100, 50, 0.5),
-        GrupoAgentes(1, 100, 80, 0.1),
-        GrupoAgentes(1, -10, 0, 0.5)
-    ]
-    R_max_RS1 = 80
-    red_social = RedSocial(grupos_RS1, R_max_RS1)
+    def modciV(self):
+        """
+        Algoritmo Voraz (placeholder).
+        Por el momento, se reutiliza la lógica de fuerza bruta.
+        """
+        return "Algoritmo Voraz no implementado", None, None
 
-    # Ejemplo 2:
-    grupos_RS2 = [
-        GrupoAgentes(3, -100, 100, 0.8),
-        GrupoAgentes(2, 100, 80, 0.5),
-        GrupoAgentes(4, -10, 10, 0.5)
-    ]
-    R_max_RS2 = 400
-    red_social_2 = RedSocial(grupos_RS2, R_max_RS2)
-
-    print("Ejemplo 1:")
-    estrategia, esfuerzo, conflicto = red_social.modciFB()
-    print("Estrategia óptima:", estrategia)
-    print("Esfuerzo total:", esfuerzo)
-    print("Conflicto interno:", conflicto)
-
-
-    print("Ejemplo 2:")
-    estrategia, esfuerzo, conflicto = red_social_2.modciFB()
-    print("Estrategia óptima:", estrategia)
-    print("Esfuerzo total:", esfuerzo)
-    print("Conflicto interno:", conflicto)
+    def modciDP(self):
+        """
+        Programación Dinámica (placeholder).
+        Por el momento, se reutiliza la lógica de fuerza bruta.
+        """
+        return "Programación Dinámica no implementada", None, None

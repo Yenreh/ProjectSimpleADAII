@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Resultados de Moderación</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>Resultados de Moderación</h1>
+    <h2>Entrada</h2>
+    <pre>{{ entrada }}</pre>
+    {% for algoritmo, datos in resultados.items() %}
+      <div class="resultado">
+        <h3>{{ algoritmo }}</h3>
+        <pre>
+Conflicto Interno: {{ datos[2] }}
+Esfuerzo Total: {{ datos[1] }}
+Estrategia (Agentes moderados por grupo): {{ datos[0] }}
+        </pre>
+      </div>
+    {% endfor %}
+    <a href="{{ url_for('index') }}" class="back-link">Volver</a>
+  </div>
+</body>
+</html>
