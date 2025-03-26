@@ -45,10 +45,16 @@ def index():
                 nombre_alg, funcion = mapping_algoritmos[key]
                 if funcion == "modciFB":
                     estrategia, esfuerzo, conflicto = red_social.modciFB()
+                    print("Procesando Fuerza Bruta")
+                    print(estrategia, esfuerzo, conflicto)
                 elif funcion == "modciV":
                     estrategia, esfuerzo, conflicto = red_social.modciV()
+                    print("Procesando Voraz")
+                    print(estrategia, esfuerzo, conflicto)
                 elif funcion == "modciDP":
                     estrategia, esfuerzo, conflicto = red_social.modciDP()
+                    print("Procesando DP")
+                    print(estrategia, esfuerzo, conflicto)
                 else:
                     continue
 
