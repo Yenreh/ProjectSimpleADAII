@@ -35,14 +35,14 @@
                         // If the algorithm has completed
                         if (data[key] && data[key].status === "completed") {
                             let result = data[key].result;
-                            html += `<p><strong>Execution Time:</strong> ${data[key].time}</p>`;
-                            html += `<p><strong>Internal Conflict:</strong> ${result[2]}</p>`;
-                            html += `<p><strong>Total Effort:</strong> ${result[1]}</p>`;
-                            html += `<p><strong>Strategy:</strong> <div class="strategy-container"> ${JSON.stringify(result[0])}</div></p>`;
+                            html += `<p><strong>Tiempo de ejecución:</strong> ${data[key].time}</p>`;
+                            html += `<p><strong>Conflicto interno:</strong> ${result[2]}</p>`;
+                            html += `<p><strong>Esfuerzo total:</strong> ${result[1]}</p>`;
+                            html += `<p><strong>Estrategia:</strong> <div class="strategy-container"> ${JSON.stringify(result[0])}</div></p>`;
                             let nombre_base = data["nombre_base"] ? data["nombre_base"] : "archivo";
-                            html += `<p><strong>Output File:</strong> output_${nombre_base}_${funcName}.txt</p>`;
+                            html += `<p><strong>Salida:</strong> output_${nombre_base}_${funcName}.txt</p>`;
                         } else {
-                            html += `<p><span class="spinner"></span> Processing...</p>`;
+                            html += `<p><span class="spinner"></span> Procesando...</p>`;
                             allCompleted = false;
                         }
                         section.innerHTML = html;
