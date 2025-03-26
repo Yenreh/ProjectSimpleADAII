@@ -178,11 +178,64 @@ class RedSocial:
 
         return estrategia, costo_total, valor_conflicto
 
-
     def modciDP(self):
         """
-        Programación Dinámica (placeholder).
-        Por el momento, se reutiliza la lógica de fuerza bruta.
-        """
-        return "Programación Dinámica no implementada", None, None
+        Resuelve el problema mediante Programación Dinámica.
 
+        Se define un DP con dimensión [i][c], donde i es el índice del grupo
+        y c es el costo acumulado hasta ese grupo. Cada estado DP[i][c] almacena
+        una tupla (num, peso, decisiones), donde:
+        - num: suma acumulada de (n_i - e_i)*(|op1_i - op2_i|)^2
+        - peso: suma acumulada de (n_i - e_i)
+        - decisiones: lista de decisiones (e_i) para los grupos 0 a i-1.
+
+        Se retorna la estrategia (lista de e_i), el costo total y el conflicto obtenido,
+        siendo conflicto = num / peso (o 0 si peso es 0).
+        """
+
+        N = len(self.grupos)
+        costo_max = self.R_max
+
+        # DP[i] será un diccionario que mapea costo acumulado -> (num, peso, decisiones)
+        DP = [dict() for _ in range(N + 1)]
+        # Estado inicial: ningún grupo procesado, costo 0, num=0, peso=0, sin decisiones
+        DP[0][0] = (0, 0, [])
+
+        for i in range(N):
+            grupo = self.grupos[i]
+            diferencia = abs(grupo.op1 - grupo.op2)  # diferencia absoluta
+            for costo_acumulado, (num_acumulado, peso_acumulado, decisiones_acumuladas) in DP[i].items():
+                # Para cada opción de moderar e agentes en el grupo i
+                for e in range(grupo.n + 1):
+                    costo_i = math.ceil(diferencia * grupo.rig * e)
+                    nuevo_costo = costo_acumulado + costo_i
+                    if nuevo_costo > costo_max:
+                        continue  # No se puede usar si excede el presupuesto
+                    nuevo_num = num_acumulado + (grupo.n - e) * (diferencia ** 2)
+                    nuevo_peso = peso_acumulado + (grupo.n - e)
+                    nuevas_decisiones = decisiones_acumuladas + [e]
+                    # Calculamos el conflicto para este estado (0 si nuevo_peso==0)
+                    nuevo_conflicto = nuevo_num / nuevo_peso if nuevo_peso > 0 else 0
+
+                    # Actualizamos DP[i+1] para el nuevo costo.
+                    # Si ya existe un estado con el mismo costo, lo reemplazamos solo si el conflicto es menor.
+                    if nuevo_costo not in DP[i + 1]:
+                        DP[i + 1][nuevo_costo] = (nuevo_num, nuevo_peso, nuevas_decisiones)
+                    else:
+                        num_existente, peso_existente, _ = DP[i + 1][nuevo_costo]
+                        conflicto_existente = num_existente / peso_existente if peso_existente > 0 else 0
+                        if nuevo_conflicto < conflicto_existente:
+                            DP[i + 1][nuevo_costo] = (nuevo_num, nuevo_peso, nuevas_decisiones)
+
+        # Después de procesar todos los grupos, buscamos el estado con costo <= R_max que minimice el conflicto.
+        mejor_conflicto = float('inf')
+        mejor_estado = None
+        mejor_costo = None
+        for costo, (num, peso, decisiones) in DP[N].items():
+            valor_conflicto = num / peso if peso > 0 else 0
+            if valor_conflicto < mejor_conflicto:
+                mejor_conflicto = valor_conflicto
+                mejor_estado = decisiones
+                mejor_costo = costo
+
+        return mejor_estado, mejor_costo, mejor_conflicto
