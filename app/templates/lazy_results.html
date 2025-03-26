@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados de Moderación - Procesando</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        function pollStatus() {
+            fetch('/status')
+                .then(response => response.json())
+                .then(data => {
+                    let resultsDiv = document.getElementById('results');
+                    resultsDiv.innerHTML = "";  // Limpiar resultados previos
+
+                    // Mostrar la sección de datos de entrada
+                    let inputDiv = document.getElementById('inputData');
+                    if (inputDiv) {
+                        inputDiv.innerText = document.getElementById('entradaData').value;
+                    }
+
+                    // mapping_algoritmos se pasa desde render_template
+                    let mapping = {{ mapping_algoritmos|tojson }};
+
+                    // Para cada algoritmo en el mapping, crear una sección
+                    for (let key in mapping) {
+                        let section = document.createElement('div');
+                        section.className = 'resultado';
+                        let nombreAlg = mapping[key][0];  // Nombre a mostrar
+                        let funcName = mapping[key][1];     // Nombre de la función
+
+                        let html = `<h3>${nombreAlg}</h3>`;
+                        // Si el algoritmo ya terminó
+                        if (data[key] && data[key].status === "completed") {
+                            let result = data[key].result;
+                            html += `<p><strong>Tiempo de Ejecución:</strong> ${data[key].time}</p>`;
+                            html += `<p><strong>Conflicto Interno:</strong> ${result[2]}</p>`;
+                            html += `<p><strong>Esfuerzo Total:</strong> ${result[1]}</p>`;
+                            html += `<p><strong>Estrategia:</strong> <div class="strategy-container"> ${JSON.stringify(result[0])}</div></p>`;
+                            let nombre_base = data["nombre_base"] ? data["nombre_base"] : "archivo";
+                            html += `<p><strong>Archivo de Salida:</strong> output_${nombre_base}_${funcName}.txt</p>`;
+                        } else {
+                            html += `<p><span class="spinner"></span> Procesando...</p>`;
+                        }
+                        section.innerHTML = html;
+                        resultsDiv.appendChild(section);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+        // Ejecutar polling cada 2 segundos
+        setInterval(pollStatus, 2000);
+    </script>
+</head>
+<body>
+<div class="container">
+    <h1>Resultados de Moderación</h1>
+    <h2>Datos de Entrada</h2>
+    <!-- Guardar el contenido de entrada en un elemento oculto para usarlo en JS -->
+    <textarea id="entradaData" style="display:none;">{{ entrada }}</textarea>
+    <pre id="inputData">{{ entrada }}</pre>
+    <div id="results">
+        <!-- Aquí se cargarán los resultados por algoritmo -->
+    </div>
+    <a href="{{ url_for('index') }}" class="back-link">Volver</a>
+</div>
+<footer style="text-align: center; margin-top: 20px; color: #666;">
+    <p>&copy; Proyecto ADAII</p>
+</footer>
+</body>
+</html>

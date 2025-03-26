@@ -107,21 +107,6 @@ pre {
   background: #0056b3;
 }
 
-@media (max-width: 768px) {
-  .container {
-    width: 95%;
-    padding: 15px;
-  }
-
-  h1 {
-    font-size: 1.5em;
-  }
-
-  .resultado {
-    padding: 15px;
-  }
-}
-
 footer {
   text-align: center;
   margin-top: 20px;
@@ -194,4 +179,43 @@ footer {
   flex-direction: column;
   align-items: center;
 
+}
+
+.strategy-container {
+  max-height: 150px; /* o la altura que consideres adecuada */
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  padding: 5px;
+  font-size: 0.9em; /* tamaño de fuente un poco menor */
+  background-color: #f9f9f9;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3; /* Color claro */
+  border-top: 4px solid #3498db; /* Color azul */
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+  .container {
+    width: 95%;
+    padding: 15px;
+  }
+
+  h1 {
+    font-size: 1.5em;
+  }
+
+  .resultado {
+    padding: 15px;
+  }
 }
