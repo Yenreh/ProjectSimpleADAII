@@ -80,7 +80,7 @@ class RedSocial:
         """
         return sum(grupo.calcular_esfuerzo(e) for grupo, e in zip(self.grupos, estrategia))
 
-    def modciFB(self):
+    def modciFB(self, stop_event=None):
         """
         Resuelve el problema usando fuerza bruta:
         - Genera todas las estrategias posibles.
@@ -95,6 +95,9 @@ class RedSocial:
         mejor_esfuerzo = None
 
         for estrategia in itertools.product(*rangos):
+            # Verificar si se debe cancelar
+            if stop_event and stop_event.is_set():
+                raise Exception("Cancelado por el usuario")
             esfuerzo_total = self.calcular_esfuerzo_total(estrategia)
             if esfuerzo_total > self.R_max:
                 continue  # Estrategia no aplicable
@@ -107,7 +110,7 @@ class RedSocial:
 
         return mejor_estrategia, mejor_esfuerzo, mejor_conflicto
 
-    def modciV(self):
+    def modciV(self, stop_event=None):
         """
         Algoritmo Voraz que unifica el cálculo de costos con el resto:
         1) Selecciona el grupo con mejor 'beneficio/costo_incr' en cada paso.
@@ -133,6 +136,9 @@ class RedSocial:
             incremento_costo = 0
 
             for i, grupo in enumerate(self.grupos):
+                # Verificar si se debe cancelar
+                if stop_event and stop_event.is_set():
+                    raise Exception("Cancelado por el usuario")
                 if estrategia[i] < grupo.n:
                     # Costo actual si tenemos e_i agentes moderados
                     costo_actual = grupo.calcular_esfuerzo(estrategia[i])
@@ -178,7 +184,7 @@ class RedSocial:
 
         return estrategia, costo_total, valor_conflicto
 
-    def modciDP(self):
+    def modciDP(self, stop_event=None):
         """
         Resuelve el problema mediante Programación Dinámica.
 
@@ -205,6 +211,9 @@ class RedSocial:
             grupo = self.grupos[i]
             diferencia = abs(grupo.op1 - grupo.op2)  # diferencia absoluta
             for costo_acumulado, (num_acumulado, peso_acumulado, decisiones_acumuladas) in DP[i].items():
+                # Verificar si se debe cancelar
+                if stop_event and stop_event.is_set():
+                    raise Exception("Cancelado por el usuario")
                 # Para cada opción de moderar e agentes en el grupo i
                 for e in range(grupo.n + 1):
                     costo_i = math.ceil(diferencia * grupo.rig * e)

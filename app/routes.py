@@ -7,21 +7,31 @@ from app.logic.utils import parsear_entrada, formatear_salida
 
 # Variable global para almacenar resultados parciales de cada algoritmo.
 processing_results = {}
+# Almacena hilos activos y sus banderas de cancelación
+active_threads = {}
 
-def run_modci(alg_key, red_social, funcion, nombre_base):
+def run_modci(alg_key, red_social, funcion, nombre_base, stop_event):
     """
     Ejecuta la función correspondiente (modciFB, modciV o modciDP),
     guarda el resultado y escribe el archivo de salida.
     """
-    start_time = time.time()
-    if funcion == "modciFB":
-        estrategia, esfuerzo, conflicto = red_social.modciFB()
-    elif funcion == "modciV":
-        estrategia, esfuerzo, conflicto = red_social.modciV()
-    elif funcion == "modciDP":
-        estrategia, esfuerzo, conflicto = red_social.modciDP()
-    else:
+    try:
+        start_time = time.time()
+        if funcion == "modciFB":
+            estrategia, esfuerzo, conflicto = red_social.modciFB(stop_event)
+        elif funcion == "modciV":
+            estrategia, esfuerzo, conflicto = red_social.modciV(stop_event)
+        elif funcion == "modciDP":
+            estrategia, esfuerzo, conflicto = red_social.modciDP(stop_event)
+        else:
+            return
+    except Exception as e:
+        processing_results[alg_key] = {
+            "status": "canceled",
+            "error": str(e)
+        }
         return
+
     end_time = time.time()
     tiempo_ejecucion = end_time - start_time
 
@@ -86,7 +96,15 @@ def index():
             # Iniciar hilos para cada algoritmo seleccionado.
             for key in seleccionados:
                 _, funcion = mapping_algoritmos[key]
-                t = threading.Thread(target=run_modci, args=(key, red_social, funcion, nombre_base))
+                stop_event = threading.Event()
+                t = threading.Thread(
+                    target=run_modci,
+                    args=(key, red_social, funcion, nombre_base, stop_event)
+                )
+                active_threads[key] = {
+                    "thread": t,
+                    "stop_event": stop_event
+                }
                 t.start()
 
             # Guardar también el nombre base para generar el nombre del archivo de salida.
@@ -105,3 +123,17 @@ def status():
     Devuelve en formato JSON el estado actual del procesamiento.
     """
     return jsonify(processing_results)
+
+
+@app.route("/cancel", methods=["POST"])
+def cancel():
+    global active_threads, processing_results
+    data = request.get_json()
+    algorithms_to_cancel = data.get("algorithms", [])
+
+    for alg_key in algorithms_to_cancel:
+        if alg_key in active_threads:
+            active_threads[alg_key]["stop_event"].set()
+            processing_results[alg_key] = {"status": "canceled"}
+
+    return jsonify({"status": "cancellation requested"})

@@ -59,6 +59,21 @@
 
         // Execute polling every 2 seconds
         pollInterval = setInterval(pollStatus, 2000);
+
+        // Función para cancelar el procesamiento y redirigir al index.
+        function cancelAndGoBack() {
+            fetch('/cancel', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({algorithms: ['FB', 'V', 'DP']}) // Cancela FB y Voraz
+            }).then(response => response.json()).then(data => {
+                    window.location.href = "/";
+                })
+                .catch(error => {
+                    console.error('Error al cancelar:', error);
+                    window.location.href = "/";
+                });
+        }
     </script>
 </head>
 <body>
@@ -71,7 +86,7 @@
     <div id="results">
         <!-- Aquí se cargarán los resultados por algoritmo -->
     </div>
-    <a href="{{ url_for('index') }}" class="back-link">Volver</a>
+    <button onclick="cancelAndGoBack()" class="back-link">Volver</button>
 </div>
 <footer style="text-align: center; margin-top: 20px; color: #666;">
     <p>&copy; Proyecto ADAII</p>
