@@ -2,27 +2,32 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Added viewport for responsiveness -->
   <title>Moderación de Opiniones</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <div class="container">
+  <header class="header">
     <h1>Moderación de Opiniones en una Red Social</h1>
-    <form action="/" method="post" enctype="multipart/form-data">
-      <div class="form-group">
-        <label for="archivo">Seleccione el archivo de entrada:</label>
-        <input type="file" name="archivo" id="archivo">
-      </div>
-      <div class="form-group">
-        <label>Seleccione las estrategias a aplicar:</label>
-        <div class="checkbox-group">
-          <label><input type="checkbox" name="strategies" value="FB" checked> Fuerza Bruta</label>
-          <label><input type="checkbox" name="strategies" value="V"> Algoritmo Voraz</label>
-          <label><input type="checkbox" name="strategies" value="DP"> Programación Dinámica</label>
+  </header>
+  <div class="container">
+    <div class="form-container">
+      <form action="/" method="post" enctype="multipart/form-data">
+        <div class="form-group file-input-group">
+          <label for="archivo">Seleccione el archivo de entrada:</label>
+          <input type="file" name="archivo" id="archivo" class="file-input"> <!-- Added class for styling -->
         </div>
-      </div>
-      <button type="submit">Procesar</button>
-    </form>
+        <div class="form-group">
+          <label class="label-select-strategies">Seleccione las estrategias a aplicar:</label>
+          <div class="checkbox-group">
+            <label><input type="checkbox" name="strategies" value="FB" checked class="styled-checkbox"> Fuerza Bruta</label>
+            <label><input type="checkbox" name="strategies" value="V" class="styled-checkbox"> Algoritmo Voraz</label>
+            <label><input type="checkbox" name="strategies" value="DP" class="styled-checkbox"> Programación Dinámica</label>
+          </div>
+        </div>
+        <button type="submit">Procesar</button>
+      </form>
+    </div>
     {% with messages = get_flashed_messages() %}
       {% if messages %}
         <ul class="flashes">
@@ -33,5 +38,8 @@
       {% endif %}
     {% endwith %}
   </div>
+  <footer class="footer">
+    <p>&copy; Proyecto ADAII</p>
+  </footer>
 </body>
 </html>
