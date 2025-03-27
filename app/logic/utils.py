@@ -20,7 +20,7 @@ def parsear_entrada(texto):
         rig = float(partes[3].strip())
         grupos.append(GrupoAgentes(n, op1, op2, rig))
     R_max = int(lineas[num_grupos + 1].strip())
-    return RedSocial(grupos, R_max)
+    return RedSocial(grupos, R_max, num_grupos)
 
 def formatear_salida(red, estrategia, esfuerzo, conflicto):
     """
