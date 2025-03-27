@@ -40,7 +40,9 @@
                             html += `<p><strong>Esfuerzo total:</strong> ${result[1]}</p>`;
                             html += `<p><strong>Estrategia:</strong> <div class="strategy-container"> ${JSON.stringify(result[0])}</div></p>`;
                             let nombre_base = data["nombre_base"] ? data["nombre_base"] : "archivo";
-                            html += `<p><strong>Salida:</strong> output_${nombre_base}_${funcName}.txt</p>`;
+                            file_name = `output_${nombre_base}_${funcName}.txt`;
+                            let file_path = `/outputs/${file_name}`;
+                            html += `<p><strong>Salida:</strong> <a href="${file_path}" download>${file_name}</a></p>`;
                         } else {
                             html += `<p><span class="spinner"></span> Procesando...</p>`;
                             allCompleted = false;

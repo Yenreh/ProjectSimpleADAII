@@ -1,7 +1,7 @@
 import os
 import time
 import threading
-from flask import render_template, request, redirect, flash, jsonify
+from flask import render_template, request, redirect, flash, jsonify, send_from_directory
 from app import app
 from app.logic.utils import parsear_entrada, formatear_salida
 
@@ -137,3 +137,12 @@ def cancel():
             processing_results[alg_key] = {"status": "canceled"}
 
     return jsonify({"status": "cancellation requested"})
+
+
+@app.route('/outputs/<path:filename>')
+def download_file(filename):
+    """
+    Sirve los archivos generados en la carpeta outputs.
+    """
+    outputs_dir = os.path.join(os.getcwd(), "outputs")
+    return send_from_directory(outputs_dir, filename)
